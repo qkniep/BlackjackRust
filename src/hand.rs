@@ -4,6 +4,7 @@
 use crate::rules::*;
 
 
+#[derive(Debug)]
 pub struct Hand {
     pub value: usize,
     pub soft: bool,
@@ -17,7 +18,7 @@ impl Hand {
         Hand {
             value: card1.value() + card2.value(),
             soft: card1 == Card::Ace || card2 == Card::Ace,
-            pair: card1 == card2,
+            pair: if SPLIT_BY_VALUE { card1.value() == card2.value() } else { card1 == card2 },
             blackjack: card1.value() + card2.value() == 21,  // TODO: no blackjack on split
             last_card: card2,
         }
@@ -42,17 +43,40 @@ impl Hand {
     }
 }
 
-pub struct Dealer(pub Hand);
-
-impl Dealer {
+#[derive(Debug)]
+pub struct Dealer {
+    pub hand: Hand,
+    pub open_card: Card,
 }
 
+impl Dealer {
+    pub fn new(card1: Card, card2: Card) -> Dealer {
+        Dealer {
+            hand: Hand::new(card1, card2),
+            open_card: card1,
+        }
+    }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    pub fn should_hit(&self) -> bool {
+        return self.hand.value < 17 || (DEALER_HITS_S17 && self.hand.soft && self.hand.value == 17);
+    }
 
-    #[test]
-    fn it_works() {
+    pub fn score_hands(&self, hands: &Vec<Hand>, bets: &Vec<usize>) -> isize {
+        if hands[0].blackjack {
+            return bets[0] as isize * 3 / 2;
+        }
+        let mut score = 0;
+        for (hand, bet) in hands.iter().zip(bets) {
+            if hand.value > 21 {
+                score -= *bet as isize;
+            } else if self.hand.value > 21 {
+                score += *bet as isize;
+            } else if hand.value < self.hand.value {
+                score -= *bet as isize;
+            } else if hand.value > self.hand.value {
+                score += *bet as isize;
+            }
+        }
+        return score;
     }
 }

@@ -14,31 +14,81 @@ use rules::*;
 
 fn main() {
     let mut deck = Deck::new();
-    deck.shuffle();
-    let dealer_open_card = deck.draw_card();  // TODO: move to Dealer struct
-    let mut dealer = Dealer(Hand::new(dealer_open_card, deck.draw_card()));
-
     let mut cash = [100isize; PLAYERS];
-    let mut hands = [vec![Hand::new(deck.draw_card(), deck.draw_card())]; PLAYERS];
-    let bets = [2usize; PLAYERS];
+    let mut bets: [Vec<usize>; PLAYERS];
 
+    let mut count = 0;
+
+    deck.shuffle();
     for _ in 0..100 {
+        if deck.num_cards() <= SHUFFLE_AT*52 {
+            deck.shuffle();
+            count = 0;
+        }
+        let mut dealer = Dealer::new(deck.draw_card(), deck.draw_card());
+        count += USTON_SS_COUNT[dealer.open_card.index()];
+        let mut hands: [Vec<Hand>; PLAYERS] = Default::default();
+        bets = Default::default();
+
+        for p in 0..PLAYERS {
+            let card1 = deck.draw_card();
+            let card2 = deck.draw_card();
+            count += USTON_SS_COUNT[card1.index()] + USTON_SS_COUNT[card2.index()];
+            hands[p].push(Hand::new(card1, card2));
+            bets[p].push(1);
+        }
+
+        // increase counter's bet
+        if count >= 10 {
+            bets[0] = vec![4];
+        }
+
         // Players' turns
         for player in 0..PLAYERS {
-            while hands[player][0].value < 21 {
-                println!("{:?}", optimal_action(&hands[player][0], &dealer_open_card));
-                hands[player][0].add_card(deck.draw_card());
+            let mut hand = 0;
+            while hand < hands[player].len() {
+                while hands[player][hand].value < 21 {
+                    let action = optimal_action(&hands[player][hand], dealer.open_card);
+                    match action {
+                        Action::Hit => hands[player][hand].add_card(deck.draw_card()),
+                        Action::Stand => break,
+                        Action::DH => {
+                            if DOUBLE { bets[player][hand] *= 2; }
+                            let card = deck.draw_card();
+                            count += USTON_SS_COUNT[card.index()];
+                            hands[player][hand].add_card(card);
+                        },
+                        Action::DS => if DOUBLE {
+                            bets[player][hand] *= 2;
+                            let card = deck.draw_card();
+                            count += USTON_SS_COUNT[card.index()];
+                            hands[player][hand].add_card(card);
+                        },
+                        Action::Split => {
+                            let card = hands[player][hand].last_card;
+                            let card1 = deck.draw_card();
+                            count += USTON_SS_COUNT[card1.index()];
+                            hands[player][hand] = Hand::new(card, card1);
+                            let card2 = deck.draw_card();
+                            count += USTON_SS_COUNT[card2.index()];
+                            hands[player].push(Hand::new(card, card2));
+                            bets[player].push(bets[player][hand]);
+                        },
+                        Action::Surrender => {},
+                    }
+                }
+                hand += 1;
             }
         }
 
         // Dealer's turn
-        while dealer.0.value < 17 || (DEALER_HITS_S17 && dealer.0.soft && dealer.0.value == 17) {
-            dealer.0.add_card(deck.draw_card());
+        while dealer.should_hit() {
+            dealer.hand.add_card(deck.draw_card());
         }
 
         // Scoring
         for i in 0..PLAYERS {
-            cash[i] += calculate_scoring(&hands[i], &dealer.0, bets[i]);
+            cash[i] += &dealer.score_hands(&hands[i], &bets[i]);
             println!("new balance of Player {}: {}", i, cash[i])
         }
     }

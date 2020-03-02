@@ -14,6 +14,7 @@ impl Deck {
     }
 
     pub fn draw_card(&mut self) -> Card {
+        assert!(self.0.len() > 0);
         self.0.pop().unwrap()
     }
 
@@ -31,14 +32,8 @@ impl Deck {
         self.0.as_mut_slice().shuffle(&mut thread_rng());
         assert_eq!(self.0.len(), self.0.capacity());
     }
-}
 
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
+    pub fn num_cards(&self) -> usize {
+        self.0.len()
     }
 }

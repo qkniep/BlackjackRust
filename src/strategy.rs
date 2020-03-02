@@ -57,30 +57,19 @@ const HARD_TOTALS: [[Action; 10]; 17] = [
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 20
 ];
 
+// CARD COUNTING STRATEGIES
+pub const HILO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 0, 0, 0, -1, -1];
+pub const KO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 1, 0, 0, -1, -1];
+pub const USTON_SS_COUNT: [i32; 10] = [2, 2, 2, 3, 2, 1, 0, -1, -2, -2];
 
-pub fn optimal_action(hand: &Hand, dealer_card: &Card) -> Action {  // TODO: implement copy for Hand/Card/Action?
+pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     let dealer_index = dealer_card.index();
 
-    if hand.pair {
-        let player_index = hand.last_card.index();
-        if PAIR_SPLITTING[player_index][dealer_index] {
-            return Split;
-        }
-    }
-
-    if hand.soft {
-        return SOFT_TOTALS[hand.value-11-2][dealer_index];
-    }
-
-    return HARD_TOTALS[hand.value-4][dealer_index];
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
+    if hand.pair && PAIR_SPLITTING[hand.last_card.index()][dealer_index] {
+        Split
+    } else if hand.soft {
+        SOFT_TOTALS[hand.value-11-2][dealer_index]
+    } else {
+        HARD_TOTALS[hand.value-4][dealer_index]
     }
 }
