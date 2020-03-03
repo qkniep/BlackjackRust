@@ -3,18 +3,26 @@
 
 // SETTINGS
 pub const PLAYERS: usize = 4;
-//pub const STARTING_CASH: usize = 1;
-//pub const STARTING_BET: usize = 1;
 
 // RULES
 pub const DECKS: usize = 4;
 pub const SHUFFLE_AT: usize = 1;
+
+pub const MINIMUM_BET: usize = 4;
+//pub const MAXIMUM_BET: usize = 1000;
+
 pub const SPLIT_BY_VALUE: bool = false;
 //pub const SPLIT_TO_X_HANDS: usize = 4;
 pub const DOUBLE: bool = true;
 pub const DOUBLE_AFTER_SPLIT: bool = false;
 pub const SURRENDER: bool = false;
 pub const DEALER_HITS_S17: bool = false;
+
+
+#[derive(Clone,Copy,Debug,PartialEq)]
+pub enum Action {
+    Hit, Stand, DH, DS, RH, RS, Split
+}
 
 #[derive(Clone,Copy,Debug,PartialEq)]
 pub enum Card {
@@ -41,9 +49,4 @@ impl Card {
             Card::Ace => 9,
         }
     }
-}
-
-#[derive(Clone,Copy,Debug)]
-pub enum Action {
-    Hit, Stand, DH, DS, Split, Surrender
 }

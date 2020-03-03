@@ -30,13 +30,11 @@ impl Hand {
         if self.soft {
             if self.value > 21 {
                 self.value -= 10;
-                self.soft = card == Card::Ace;  // ???
+                self.soft = card == Card::Ace;
             }
-        } else {
-            if card == Card::Ace {
-                if self.value > 21 { self.value -= 10; }
-                else { self.soft = true; }
-            }
+        } else if card == Card::Ace {
+            if self.value > 21 { self.value -= 10; }
+            else { self.soft = true; }
         }
 
         self.last_card = card;

@@ -2,7 +2,7 @@
 // Distributed under terms of the MIT license.
 
 use crate::hand::Hand;
-use crate::rules::{Action, Card};
+use crate::rules::*;
 use crate::rules::Action::*;
 
 
@@ -29,8 +29,8 @@ const SOFT_TOTALS: [[Action; 10]; 8] = [
     [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 4
     [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 5
     [Hit,   DH,    DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 6
-    [DS,    DS,    DS,    DS,    DS,    Stand, Stand, Stand, Stand, Stand],  // 7
-    [Stand, Stand, Stand, Stand, DS,    Stand, Stand, Stand, Stand, Stand],  // 8
+    [Stand, DS,    DS,    DS,    DS,    Stand, Stand, Stand, Stand, Stand],  // 7
+    [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 8
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 9
 ];
 
@@ -44,12 +44,12 @@ const HARD_TOTALS: [[Action; 10]; 17] = [
 
     [Hit,   DH,    DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 9
     [DH,    DH,    DH,    DH,    DH,    DH,    DH,    DH,    Hit,   Hit  ],  // 10
-    [DH,    DH,    DH,    DH,    DH,    DH,    DH ,   DH,    DH,    DH   ],  // 11
-    [Hit,   Hit,   Stand, Stand, Stand, Hit,   Hit,   Hit  , Hit,   Hit  ],  // 12
-    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit  , Hit,   Hit  ],  // 13
-    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit  , Hit,   Hit  ],  // 14
-    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit  , Hit,   Hit  ],  // 15
-    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit  , Hit,   Hit  ],  // 16
+    [DH,    DH,    DH,    DH,    DH,    DH,    DH ,   DH,    DH,    Hit  ],  // 11
+    [Hit,   Hit,   Stand, Stand, Stand, Hit,   Hit,   Hit,   Hit,   Hit  ],  // 12
+    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   Hit,   Hit  ],  // 13
+    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   Hit,   Hit  ],  // 14
+    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   RH,    Hit  ],  // 15
+    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   RH,    RH,    RH   ],  // 16
 
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 17
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 18
@@ -64,12 +64,19 @@ pub const USTON_SS_COUNT: [i32; 10] = [2, 2, 2, 3, 2, 1, 0, -1, -2, -2];
 
 pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     let dealer_index = dealer_card.index();
+    let action;
 
     if hand.pair && PAIR_SPLITTING[hand.last_card.index()][dealer_index] {
-        Split
+        action = Split;
     } else if hand.soft {
-        SOFT_TOTALS[hand.value-11-2][dealer_index]
+        action = SOFT_TOTALS[hand.value-11-2][dealer_index];
     } else {
-        HARD_TOTALS[hand.value-4][dealer_index]
+        action = HARD_TOTALS[hand.value-4][dealer_index];
     }
+
+    if !DOUBLE && action == Action::DH { return Hit }
+    if !DOUBLE && action == Action::DS { return Stand; }
+    if !SURRENDER && action == Action::RH { return Hit; }
+    if !SURRENDER && action == Action::RS { return Stand; }
+    action
 }
