@@ -2,21 +2,21 @@
 // Distributed under terms of the MIT license.
 
 // SETTINGS
-pub const PLAYERS: usize = 4;
+//pub const PLAYERS: usize = 4;
 
 // RULES
 pub const DECKS: usize = 4;
 pub const SHUFFLE_AT: usize = 1;
 
-pub const MINIMUM_BET: usize = 4;
+pub const MINIMUM_BET: usize = 2;
 //pub const MAXIMUM_BET: usize = 1000;
 
 pub const SPLIT_BY_VALUE: bool = false;
-//pub const SPLIT_TO_X_HANDS: usize = 4;
-pub const DOUBLE: bool = true;
+pub const SPLIT_TO_X_HANDS: usize = 2;
+pub const DOUBLE: bool = false;
 pub const DOUBLE_AFTER_SPLIT: bool = false;
 pub const SURRENDER: bool = false;
-pub const DEALER_HITS_S17: bool = false;
+pub const DEALER_HITS_S17: bool = true;
 
 
 #[derive(Clone,Copy,Debug,PartialEq)]

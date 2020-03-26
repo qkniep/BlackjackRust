@@ -9,8 +9,8 @@ use crate::rules::*;
 pub struct Deck(Vec<Card>);
 
 impl Deck {
-    pub fn new() -> Deck {
-        Deck(Vec::with_capacity(DECKS*52))
+    pub fn new() -> Self {
+        Self(Vec::with_capacity(DECKS*52))
     }
 
     pub fn draw_card(&mut self) -> Card {

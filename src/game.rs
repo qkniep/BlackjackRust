@@ -7,26 +7,37 @@ use crate::rules::*;
 use crate::strategy::*;
 
 
-struct Player {
-    hands: Vec<Hand>,
+pub struct Player {
     bankroll: isize,
+    hands: Vec<Hand>,
     bets: Vec<usize>,
 
+    counting_strategy: &'static [i32; 10],
     count: i32,
 }
 
 impl Player {
-    fn new() -> Player {
-        Player {
-            hands: Vec::new(),
+    pub fn new(strategy: &'static [i32; 10]) -> Self {
+        Self {
             bankroll: 1000,
+            hands: Vec::new(),
             bets: Vec::new(),
+            counting_strategy: strategy,
             count: 0,
         }
     }
 
+    fn deal(&mut self, hand: Hand) {
+        self.hands.clear();
+        self.bets.clear();
+
+        let bet_size = std::cmp::max(1, self.count / DECKS as i32 - 1);
+        self.bets.push(MINIMUM_BET * bet_size as usize);
+        self.hands.push(hand);
+    }
+
     fn reveal(&mut self, card: Card) {
-        self.count += USTON_SS_COUNT[card.index()];
+        self.count += self.counting_strategy[card.index()];
     }
 }
 
@@ -36,27 +47,21 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new() -> Game {
-        let mut game = Self {
+    pub fn new() -> Self {
+        Self {
             deck: Deck::new(),
             players: Vec::new(),
-        };
-
-        for _ in 0..PLAYERS {
-            game.join(Player::new());
         }
-
-        game
     }
 
-    fn join(&mut self, player: Player) {
+    pub fn join(&mut self, player: Player) {
         self.players.push(player);
     }
 
     pub fn play_round(&mut self) {
         self.new_round();
 
-        let mut dealer = Dealer::new(self.draw_reveal(), self.draw_reveal());
+        let mut dealer = Dealer::new(self.draw_reveal(), self.deck.draw_card());
 
         // Players' turns
         for player in 0..self.players.len() {
@@ -76,23 +81,19 @@ impl Game {
     }
 
     pub fn bankrolls(&self) -> Vec<isize> {
-        let mut result = Vec::new();
-        for player in &self.players {
-            result.push(player.bankroll);
-        }
-        result
+        self.players.iter().map(|p| p.bankroll).collect()
     }
 
     fn new_round(&mut self) {
         if self.deck.num_cards() <= SHUFFLE_AT*52 {
             self.deck.shuffle();
+            for player in &mut self.players { player.count = 0; }
         }
 
-        let card1 = self.draw_reveal();
-        let card2 = self.draw_reveal();
-        for player in &mut self.players {
-            player.hands.push(Hand::new(card1, card2));
-            player.bets.push(MINIMUM_BET);
+        for player in 0..self.players.len() {
+            let card1 = self.draw_reveal();
+            let card2 = self.draw_reveal();
+            self.players[player].deal(Hand::new(card1, card2));
         }
     }
 
@@ -104,28 +105,35 @@ impl Game {
                 match action {
                     Action::Hit => {
                         let card = self.draw_reveal();
-                        self.players[player].hands[hand].add_card(card)
+                        self.players[player].hands[hand].add_card(card);
                     },
                     Action::Stand => break,
                     Action::DH | Action::DS => {  // Double
-                        assert!(DOUBLE);
                         self.players[player].bets[hand] *= 2;
                         let card = self.draw_reveal();
                         self.players[player].hands[hand].add_card(card);
                         break;
                     },
                     Action::RH | Action::RS => {  // Surrender
-                        assert!(SURRENDER);
-                        unimplemented!();
-                        //break;
+                        self.players[player].hands[hand].surrendered = true;
+                        break;
                     },
                     Action::Split => {
                         let card = self.players[player].hands[hand].last_card;
-                        self.players[player].hands[hand] = Hand::new(card, self.draw_reveal());
-                        let drawn_card = self.draw_reveal();
-                        self.players[player].hands.push(Hand::new(card, drawn_card));
+                        let mut hand1 = Hand::new(card, self.draw_reveal());
+                        let mut hand2 = Hand::new(card, self.draw_reveal());
+                        hand1.natural = false;
+                        hand2.natural = false;
+                        self.players[player].hands[hand] = hand1;
+                        self.players[player].hands.push(hand2);
                         let bet = self.players[player].bets[hand];
                         self.players[player].bets.push(bet);
+
+                        if self.players[player].hands.len() >= SPLIT_TO_X_HANDS {
+                            for hand in &mut self.players[player].hands {
+                                hand.pair = false;  // can no longer split
+                            }
+                        }
                     },
                 }
             }

@@ -6,24 +6,25 @@ use crate::rules::*;
 use crate::rules::Action::*;
 
 
-const DAS: bool = crate::rules::DOUBLE_AFTER_SPLIT;
+const DAS: bool = DOUBLE_AFTER_SPLIT;
 
 const PAIR_SPLITTING: [[bool; 10]; 10] = [
-//   TWO    THREE  FOUR   FIVE   SIX    SEVEN  EIGHT  NINE   TEN    ACE   <- DEALER
-    [DAS,   DAS,   true,  true,  true,  true,  false, false, false, false],  // TWO
-    [DAS,   DAS,   true,  true,  true,  true,  false, false, false, false],  // THREE
-    [false, false, false, DAS,   DAS,   false, false, false, false, false],  // FOUR
-    [false, false, false, false, false, false, false, false, false, false],  // FIVE
-    [DAS,   true,  true,  true,  true,  false, false, false, false, false],  // SIX
-    [true,  true,  true,  true,  true,  true,  false, false, false, false],  // SEVEN
-    [true,  true,  true,  true,  true,  true,  true,  true,  true,  true ],  // EIGHT
-    [true,  true,  true,  true,  true,  false, true,  true,  false, false],  // NINE
-    [false, false, false, false, false, false, false, false, false, false],  // TEN
-    [true,  true,  true,  true,  true,  true,  true,  true,  true,  true ],  // ACE
+//   2      3      4      5      6      7      8      9      10     A     <- DEALER
+    [DAS,   DAS,   true,  true,  true,  true,  false, false, false, false],  // 2
+    [DAS,   DAS,   true,  true,  true,  true,  false, false, false, false],  // 3
+    [false, false, false, DAS,   DAS,   false, false, false, false, false],  // 4
+    [false, false, false, false, false, false, false, false, false, false],  // 5
+    [DAS,   true,  true,  true,  true,  false, false, false, false, false],  // 6
+    [true,  true,  true,  true,  true,  true,  false, false, false, false],  // 7
+    [true,  true,  true,  true,  true,  true,  true,  true,  true,  true ],  // 8
+    [true,  true,  true,  true,  true,  false, true,  true,  false, false],  // 9
+    [false, false, false, false, false, false, false, false, false, false],  // 10
+    [true,  true,  true,  true,  true,  true,  true,  true,  true,  true ],  // A
 ];
 
-const SOFT_TOTALS: [[Action; 10]; 8] = [
-//   TWO    THREE  FOUR   FIVE   SIX    SEVEN  EIGHT  NINE   TEN    ACE   <- DEALER
+const SOFT_TOTALS: [[Action; 10]; 9] = [
+//   2      3      4      5      6      7      8      9      10     A     <- DEALER
+    [Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit  ],  // A
     [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 2
     [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 3
     [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 4
@@ -35,7 +36,7 @@ const SOFT_TOTALS: [[Action; 10]; 8] = [
 ];
 
 const HARD_TOTALS: [[Action; 10]; 17] = [
-//   TWO    THREE  FOUR   FIVE   SIX    SEVEN  EIGHT  NINE   TEN    ACE   <- DEALER
+//   2      3      4      5      6      7      8      9      10     A     <- DEALER
     [Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit  ],  // 4
     [Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit  ],  // 5
     [Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit  ],  // 6
@@ -58,6 +59,7 @@ const HARD_TOTALS: [[Action; 10]; 17] = [
 ];
 
 // CARD COUNTING STRATEGIES
+pub const NO_COUNT: [i32; 10] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 pub const HILO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 0, 0, 0, -1, -1];
 pub const KO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 1, 0, 0, -1, -1];
 pub const USTON_SS_COUNT: [i32; 10] = [2, 2, 2, 3, 2, 1, 0, -1, -2, -2];
@@ -69,13 +71,15 @@ pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     if hand.pair && PAIR_SPLITTING[hand.last_card.index()][dealer_index] {
         action = Split;
     } else if hand.soft {
-        action = SOFT_TOTALS[hand.value-11-2][dealer_index];
+        action = SOFT_TOTALS[hand.value-11-1][dealer_index];
     } else {
         action = HARD_TOTALS[hand.value-4][dealer_index];
     }
 
-    if !DOUBLE && action == Action::DH { return Hit }
-    if !DOUBLE && action == Action::DS { return Stand; }
+    if !DOUBLE || !hand.natural {
+        if action == Action::DH { return Hit }
+        if action == Action::DS { return Stand; }
+    }
     if !SURRENDER && action == Action::RH { return Hit; }
     if !SURRENDER && action == Action::RS { return Stand; }
     action
