@@ -1,7 +1,7 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
-use crate::deck::*;
+use crate::shoe::*;
 use crate::hand::*;
 use crate::rules::*;
 use crate::strategy::*;
@@ -42,14 +42,14 @@ impl Player {
 }
 
 pub struct Game {
-    deck: Deck,
+    shoe: Shoe,
     players: Vec<Player>,
 }
 
 impl Game {
     pub fn new() -> Self {
         Self {
-            deck: Deck::new(),
+            shoe: Shoe::new(),
             players: Vec::new(),
         }
     }
@@ -61,7 +61,7 @@ impl Game {
     pub fn play_round(&mut self) {
         self.new_round();
 
-        let mut dealer = Dealer::new(self.draw_reveal(), self.deck.draw_card());
+        let mut dealer = Dealer::new(self.draw_reveal(), self.shoe.draw_card());
 
         // Players' turns
         for player in 0..self.players.len() {
@@ -85,8 +85,8 @@ impl Game {
     }
 
     fn new_round(&mut self) {
-        if self.deck.num_cards() <= SHUFFLE_AT*52 {
-            self.deck.shuffle();
+        if self.shoe.num_cards() <= SHUFFLE_AT*52 {
+            self.shoe.shuffle();
             for player in &mut self.players { player.count = 0; }
         }
 
@@ -142,7 +142,7 @@ impl Game {
     }
 
     fn draw_reveal(&mut self) -> Card {
-        let card = self.deck.draw_card();
+        let card = self.shoe.draw_card();
         self.reveal_card(card);
         card
     }

@@ -1,7 +1,7 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
-mod deck;
+mod shoe;
 mod game;
 mod hand;
 mod strategy;

@@ -6,9 +6,9 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::rules::*;
 
 
-pub struct Deck(Vec<Card>);
+pub struct Shoe(Vec<Card>);
 
-impl Deck {
+impl Shoe {
     pub fn new() -> Self {
         Self(Vec::with_capacity(DECKS*52))
     }
