@@ -18,15 +18,24 @@ pub const DOUBLE_AFTER_SPLIT: bool = false;
 pub const SURRENDER: bool = false;
 pub const DEALER_HITS_S17: bool = true;
 
-
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
-    Hit, Stand, DH, DS, RH, RS, Split
+    Hit,
+    Stand,
+    DH,
+    DS,
+    RH,
+    RS,
+    Split,
 }
 
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Card {
-    Number(usize), Jack, Queen, King, Ace
+    Number(usize),
+    Jack,
+    Queen,
+    King,
+    Ace,
 }
 
 impl Card {
@@ -42,7 +51,7 @@ impl Card {
 
     pub fn index(&self) -> usize {
         match self {
-            Card::Number(n) => n-2,
+            Card::Number(n) => n - 2,
             Card::Jack => 8,
             Card::Queen => 8,
             Card::King => 8,

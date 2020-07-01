@@ -5,12 +5,11 @@ use rand::{seq::SliceRandom, thread_rng};
 
 use crate::rules::*;
 
-
 pub struct Shoe(Vec<Card>);
 
 impl Shoe {
     pub fn new() -> Self {
-        Self(Vec::with_capacity(DECKS*52))
+        Self(Vec::with_capacity(DECKS * 52))
     }
 
     pub fn draw_card(&mut self) -> Card {
@@ -20,7 +19,7 @@ impl Shoe {
 
     pub fn shuffle(&mut self) {
         self.0.clear();
-        for _ in 0..DECKS*4 {
+        for _ in 0..DECKS * 4 {
             for n in 2..=10 {
                 self.0.push(Card::Number(n));
             }

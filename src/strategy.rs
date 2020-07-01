@@ -5,7 +5,6 @@ use crate::hand::Hand;
 use crate::rules::*;
 use crate::rules::Action::*;
 
-
 const DAS: bool = DOUBLE_AFTER_SPLIT;
 
 const PAIR_SPLITTING: [[bool; 10]; 10] = [
@@ -77,10 +76,18 @@ pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     }
 
     if !DOUBLE || !hand.natural {
-        if action == Action::DH { return Hit }
-        if action == Action::DS { return Stand; }
+        if action == Action::DH {
+            return Hit
+        } else if action == Action::DS {
+            return Stand;
+        }
     }
-    if !SURRENDER && action == Action::RH { return Hit; }
-    if !SURRENDER && action == Action::RS { return Stand; }
+    if !SURRENDER {
+        if action == Action::RH {
+            return Hit;
+        } else if action == Action::RS {
+            return Stand;
+        }
+    }
     action
 }

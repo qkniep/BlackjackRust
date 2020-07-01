@@ -1,11 +1,10 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
-use crate::shoe::*;
 use crate::hand::*;
 use crate::rules::*;
+use crate::shoe::*;
 use crate::strategy::*;
-
 
 pub struct Player {
     bankroll: isize,
@@ -85,9 +84,11 @@ impl Game {
     }
 
     fn new_round(&mut self) {
-        if self.shoe.num_cards() <= SHUFFLE_AT*52 {
+        if self.shoe.num_cards() <= SHUFFLE_AT * 52 {
             self.shoe.shuffle();
-            for player in &mut self.players { player.count = 0; }
+            for player in &mut self.players {
+                player.count = 0;
+            }
         }
 
         for player in 0..self.players.len() {
@@ -106,18 +107,20 @@ impl Game {
                     Action::Hit => {
                         let card = self.draw_reveal();
                         self.players[player].hands[hand].add_card(card);
-                    },
+                    }
                     Action::Stand => break,
-                    Action::DH | Action::DS => {  // Double
+                    Action::DH | Action::DS => {
+                        // Double
                         self.players[player].bets[hand] *= 2;
                         let card = self.draw_reveal();
                         self.players[player].hands[hand].add_card(card);
                         break;
-                    },
-                    Action::RH | Action::RS => {  // Surrender
+                    }
+                    Action::RH | Action::RS => {
+                        // Surrender
                         self.players[player].hands[hand].surrendered = true;
                         break;
-                    },
+                    }
                     Action::Split => {
                         let card = self.players[player].hands[hand].last_card;
                         let mut hand1 = Hand::new(card, self.draw_reveal());
@@ -131,10 +134,10 @@ impl Game {
 
                         if self.players[player].hands.len() >= SPLIT_TO_X_HANDS {
                             for hand in &mut self.players[player].hands {
-                                hand.pair = false;  // can no longer split
+                                hand.pair = false; // can no longer split
                             }
                         }
-                    },
+                    }
                 }
             }
             hand += 1;
