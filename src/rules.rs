@@ -5,18 +5,18 @@
 //pub const PLAYERS: usize = 4;
 
 // RULES
-pub const DECKS: usize = 4;
-pub const SHUFFLE_AT: usize = 1;
+pub const DECKS: usize = 8;
+pub const SHUFFLE_AT: usize = 2;
 
 pub const MINIMUM_BET: usize = 2;
-//pub const MAXIMUM_BET: usize = 1000;
+//pub const MAXIMUM_BET: usize = 1000;  TODO: implement this
 
 pub const SPLIT_BY_VALUE: bool = false;
 pub const SPLIT_TO_X_HANDS: usize = 2;
-pub const DOUBLE: bool = false;
+pub const DOUBLE: bool = true;
 pub const DOUBLE_AFTER_SPLIT: bool = false;
-pub const SURRENDER: bool = false;
-pub const DEALER_HITS_S17: bool = true;
+pub const SURRENDER: bool = true;
+pub const DEALER_HITS_S17: bool = false;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
@@ -50,12 +50,6 @@ impl Card {
     }
 
     pub fn index(&self) -> usize {
-        match self {
-            Card::Number(n) => n - 2,
-            Card::Jack => 8,
-            Card::Queen => 8,
-            Card::King => 8,
-            Card::Ace => 9,
-        }
+        self.value() - 2
     }
 }

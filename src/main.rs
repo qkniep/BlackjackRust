@@ -1,13 +1,16 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
+mod dealer;
 mod game;
 mod hand;
+mod player;
 mod rules;
 mod shoe;
 mod strategy;
 
-use game::*;
+use game::Game;
+use player::Player;
 use strategy::*;
 
 const TESTS: u32 = 1000;

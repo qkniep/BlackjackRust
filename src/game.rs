@@ -1,44 +1,12 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
-use crate::hand::*;
+use crate::dealer::Dealer;
+use crate::hand::Hand;
+use crate::player::Player;
 use crate::rules::*;
-use crate::shoe::*;
-use crate::strategy::*;
-
-pub struct Player {
-    bankroll: isize,
-    hands: Vec<Hand>,
-    bets: Vec<usize>,
-
-    counting_strategy: &'static [i32; 10],
-    count: i32,
-}
-
-impl Player {
-    pub fn new(strategy: &'static [i32; 10]) -> Self {
-        Self {
-            bankroll: 1000,
-            hands: Vec::new(),
-            bets: Vec::new(),
-            counting_strategy: strategy,
-            count: 0,
-        }
-    }
-
-    fn deal(&mut self, hand: Hand) {
-        self.hands.clear();
-        self.bets.clear();
-
-        let bet_size = std::cmp::max(1, self.count / DECKS as i32 - 1);
-        self.bets.push(MINIMUM_BET * bet_size as usize);
-        self.hands.push(hand);
-    }
-
-    fn reveal(&mut self, card: Card) {
-        self.count += self.counting_strategy[card.index()];
-    }
-}
+use crate::shoe::Shoe;
+use crate::strategy::optimal_action;
 
 pub struct Game {
     shoe: Shoe,
@@ -48,7 +16,7 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         Self {
-            shoe: Shoe::new(),
+            shoe: Shoe::new(DECKS),
             players: Vec::new(),
         }
     }
@@ -60,7 +28,9 @@ impl Game {
     pub fn play_round(&mut self) {
         self.new_round();
 
-        let mut dealer = Dealer::new(self.draw_reveal(), self.shoe.draw_card());
+        let card1 = self.draw_reveal();
+        let card2 = self.shoe.draw_card();
+        let mut dealer = Dealer::new(card1, card2);
 
         // Players' turns
         for player in 0..self.players.len() {
@@ -94,7 +64,9 @@ impl Game {
         for player in 0..self.players.len() {
             let card1 = self.draw_reveal();
             let card2 = self.draw_reveal();
-            self.players[player].deal(Hand::new(card1, card2));
+            let hand = Hand::new(card1, card2);
+            let remaining_decks = (self.shoe.num_cards() + 51) / DECKS;
+            self.players[player].deal(hand, remaining_decks as i32);
         }
     }
 
@@ -108,7 +80,9 @@ impl Game {
                         let card = self.draw_reveal();
                         self.players[player].hands[hand].add_card(card);
                     }
-                    Action::Stand => break,
+                    Action::Stand => {
+                        break;
+                    }
                     Action::DH | Action::DS => {
                         // Double
                         self.players[player].bets[hand] *= 2;

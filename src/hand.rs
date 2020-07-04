@@ -55,55 +55,40 @@ impl Hand {
     }
 }
 
-#[derive(Debug)]
-pub struct Dealer {
-    pub hand: Hand,
-    pub open_card: Card,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl Dealer {
-    pub fn new(card1: Card, card2: Card) -> Self {
-        Self {
-            hand: Hand::new(card1, card2),
-            open_card: card1,
-        }
+    #[test]
+    fn test_value() {
+        assert_eq!(Hand::new(Card::Number(4), Card::Number(7)).value, 11);
+        assert_eq!(Hand::new(Card::King, Card::Queen).value, 20);
+        assert_eq!(Hand::new(Card::Ace, Card::Ace).value, 12);
+        assert_eq!(Hand::new(Card::Number(10), Card::Ace).value, 21);
+        assert_eq!(Hand::new(Card::Number(9), Card::Ace).value, 20);
+        assert_eq!(Hand::new(Card::Number(9), Card::Number(9)).value, 18);
     }
 
-    pub fn should_hit(&self) -> bool {
-        return self.hand.value < 17
-            || (DEALER_HITS_S17 && self.hand.soft && self.hand.value == 17);
+    #[test]
+    fn test_value_after_add() {
+        let mut hand = Hand::new(Card::Number(4), Card::Number(4));
+        hand.add_card(Card::Number(3));
+        assert_eq!(hand.value, 11);
+        hand.add_card(Card::Number(6));
+        assert_eq!(hand.value, 17);
+
+        let mut hand = Hand::new(Card::Jack, Card::Number(8));
+        hand.add_card(Card::Ace);
+        assert_eq!(hand.value, 19);
     }
 
-    pub fn score_hands(&self, hands: &Vec<Hand>, bets: &Vec<usize>) -> isize {
-        let mut score = 0;
-        let bets = bets.iter().map(|x| *x as isize);
-        for (hand, bet) in hands.iter().zip(bets) {
-            if hand.surrendered {
-                // Player Surrender
-                score -= bet / 2;
-            } else if self.hand.blackjack {
-                // Dealer Blackjack
-                if hand.blackjack && hand.natural {
-                    continue;
-                }
-                score -= bet;
-            } else if hand.blackjack && hand.natural {
-                // Player Blackjack
-                score += bet * 3 / 2;
-            } else if hand.value > 21 {
-                // Player Bust
-                score -= bet;
-            } else if self.hand.value > 21 {
-                // Dealer Bust
-                score += bet;
-            } else if hand.value < self.hand.value {
-                // Dealer stronger hand
-                score -= bet;
-            } else if hand.value > self.hand.value {
-                // Player stronger hand
-                score += bet;
-            }
-        }
-        score
+    #[test]
+    fn test_blackjack() {
+        assert_eq!(Hand::new(Card::Number(10), Card::Ace).blackjack, true);
+        assert_eq!(Hand::new(Card::King, Card::Ace).blackjack, true);
+        assert_eq!(Hand::new(Card::King, Card::Number(10)).blackjack, false);
+        let mut hand = Hand::new(Card::King, Card::Queen);
+        hand.add_card(Card::Number(1));
+        assert_eq!(hand.blackjack, false);
     }
 }

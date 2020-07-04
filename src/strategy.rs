@@ -62,6 +62,8 @@ pub const NO_COUNT: [i32; 10] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 pub const HILO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 0, 0, 0, -1, -1];
 pub const KO_COUNT: [i32; 10] = [1, 1, 1, 1, 1, 1, 0, 0, -1, -1];
 pub const USTON_SS_COUNT: [i32; 10] = [2, 2, 2, 3, 2, 1, 0, -1, -2, -2];
+//pub const REVERE_POINT_COUNT: [i32; 10] = [1, 2, 2, 2, 2, 1, 0, 0, -2, -2];
+//pub const RAPC_COUNT: [i32; 10] = [2, 3, 3, 4, 3, 2, 0, -1, -3, -4];
 
 pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     let dealer_index = dealer_card.index();
@@ -75,7 +77,7 @@ pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
         action = HARD_TOTALS[hand.value-4][dealer_index];
     }
 
-    if !DOUBLE || !hand.natural {
+    if !DOUBLE || (!hand.natural && !DAS) {
         if action == Action::DH {
             return Hit
         } else if action == Action::DS {
