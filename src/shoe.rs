@@ -1,18 +1,23 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
-use rand::{seq::SliceRandom, thread_rng};
+use rand::{rngs::SmallRng, seq::SliceRandom, SeedableRng};
 
 use crate::rules::*;
 
-pub struct Shoe{
+pub struct Shoe {
+    rng: SmallRng,
     num_decks: usize,
     cards: Vec<Card>,
 }
 
 impl Shoe {
     pub fn new(decks: usize) -> Self {
-        Self{ num_decks: decks, cards: Vec::with_capacity(decks * 52) }
+        Self {
+            rng: SmallRng::from_entropy(),
+            num_decks: decks,
+            cards: Vec::with_capacity(decks * 52),
+        }
     }
 
     pub fn draw_card(&mut self) -> Card {
@@ -31,7 +36,7 @@ impl Shoe {
             self.cards.push(Card::King);
             self.cards.push(Card::Ace);
         }
-        self.cards.as_mut_slice().shuffle(&mut thread_rng());
+        self.cards.as_mut_slice().shuffle(&mut self.rng);
     }
 
     pub fn num_cards(&self) -> usize {
