@@ -1,4 +1,5 @@
-// Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com> Distributed under terms of the MIT license.
+// Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
+// Distributed under terms of the MIT license.
 
 mod dealer;
 mod game;
@@ -9,20 +10,28 @@ mod shoe;
 mod strategy;
 
 use indicatif::{ProgressBar, ProgressStyle};
+#[macro_use]
+extern crate prettytable;
+use prettytable::Table;
 
 use game::Game;
 use player::Player;
+use rules::MINIMUM_BET;
 use strategy::*;
 
-const TESTS: u32 = 1000;
-const ROUNDS: u32 = 1000;
-const TOTAL_ROUNDS: u64 = TESTS as u64 * ROUNDS as u64;
+const TESTS: usize = 100;
+const ROUNDS: usize = 1000;
 
 fn main() {
     let mut roi_no = 0.0;
     let mut roi_hilo = 0.0;
     let mut roi_ko = 0.0;
     let mut roi_uston = 0.0;
+
+    let mut exp_earning_no = 0;
+    let mut exp_earning_hilo = 0;
+    let mut exp_earning_ko = 0;
+    let mut exp_earning_uston = 0;
 
     let mut avg_final_bankroll_no = 0.0;
     let mut avg_final_bankroll_hilo = 0.0;
@@ -34,9 +43,14 @@ fn main() {
     let mut co_bankrupt_ko = 0.0;
     let mut co_bankrupt_uston = 0.0;
 
-    println!("Running {} tests with {} games each, a total of {} games...", TESTS, ROUNDS, TOTAL_ROUNDS);
+    println!(
+        "Running {} tests with {} games each, a total of {} games...",
+        TESTS,
+        ROUNDS,
+        TESTS * ROUNDS
+    );
 
-    let pb = ProgressBar::new(TOTAL_ROUNDS);
+    let pb = ProgressBar::new((TESTS * ROUNDS) as u64);
     pb.set_style(ProgressStyle::default_bar()
         .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} - {per_sec} ({eta})")
         .progress_chars("#>-"));
@@ -80,6 +94,12 @@ fn main() {
             }
         }
 
+        let bank = game.bankrolls();
+        exp_earning_no += bank[0] - 10000;
+        exp_earning_hilo += bank[1] - 10000;
+        exp_earning_ko += bank[2] - 10000;
+        exp_earning_uston += bank[3] - 10000;
+
         avg_final_bankroll_no += game.bankrolls()[0] as f64 / TESTS as f64;
         avg_final_bankroll_hilo += game.bankrolls()[1] as f64 / TESTS as f64;
         avg_final_bankroll_ko += game.bankrolls()[2] as f64 / TESTS as f64;
@@ -101,66 +121,43 @@ fn main() {
 
     pb.finish_with_message("Done!");
 
-    println!(
-        "Average final bankroll after {} rounds (no count): {}",
-        ROUNDS,
-        avg_final_bankroll_no
-    );
-    println!(
-        "Average final bankroll after {} rounds (HL count): {}",
-        ROUNDS,
-        avg_final_bankroll_hilo
-    );
-    println!(
-        "Average final bankroll after {} rounds (KO count): {}",
-        ROUNDS,
-        avg_final_bankroll_ko
-    );
-    println!(
-        "Average final bankroll after {} rounds (SS count): {}",
-        ROUNDS,
-        avg_final_bankroll_uston
-    );
-
-    println!(
-        "Average ROI after {} rounds (no count): {:.2}%",
-        ROUNDS,
-        roi_no as f64 * 100.0 / (ROUNDS * TESTS) as f64,
-    );
-    println!(
-        "Average ROI after {} rounds (HL count): {:.2}%",
-        ROUNDS,
-        roi_hilo as f64 * 100.0 / (ROUNDS * TESTS) as f64,
-    );
-    println!(
-        "Average ROI after {} rounds (KO count): {:.2}%",
-        ROUNDS,
-        roi_ko as f64 * 100.0 / (ROUNDS * TESTS) as f64,
-    );
-    println!(
-        "Average ROI after {} rounds (SS count): {:.2}%",
-        ROUNDS,
-        roi_uston as f64 * 100.0 / (ROUNDS * TESTS) as f64,
-    );
-
-    println!(
-        "Chance of bankrupt after {} rounds (no count): {:.2}%",
-        ROUNDS,
-        co_bankrupt_no * 100.0
-    );
-    println!(
-        "Chance of bankrupt after {} rounds (HL count): {:.2}%",
-        ROUNDS,
-        co_bankrupt_hilo * 100.0
-    );
-    println!(
-        "Chance of bankrupt after {} rounds (KO count): {:.2}%",
-        ROUNDS,
-        co_bankrupt_ko * 100.0
-    );
-    println!(
-        "Chance of bankrupt after {} rounds (SS count): {:.2}%",
-        ROUNDS,
-        co_bankrupt_uston * 100.0
-    );
+    let mut table = Table::new();
+    table.set_format(*prettytable::format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
+    //table.set_format(*prettytable::format::consts::FORMAT_BOX_CHARS);
+    table.set_titles(row![
+        "Metric",
+        "No Count",
+        "HiLo Count",
+        "KO Count",
+        "Uston SS Count"
+    ]);
+    table.add_row(row![
+        "Avg. final bankroll",
+        format!("{:.2}", avg_final_bankroll_no),
+        format!("{:.2}", avg_final_bankroll_hilo),
+        format!("{:.2}", avg_final_bankroll_ko),
+        format!("{:.2}", avg_final_bankroll_uston),
+    ]);
+    table.add_row(row![
+        "ROI",
+        format!("{:.2}%", roi_no as f64 * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_hilo as f64 * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_ko as f64 * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_uston as f64 * 100.0 / (ROUNDS * TESTS) as f64),
+    ]);
+    table.add_row(row![
+        "Expected earnings",
+        format!("{:.3}% min bet",exp_earning_no as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.3}% min bet",exp_earning_hilo as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.3}% min bet",exp_earning_ko as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.3}% min bet",exp_earning_uston as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+    ]);
+    table.add_row(row![
+        "Risk of ruin",
+        format!("{:.2}%", co_bankrupt_no * 100.0),
+        format!("{:.2}%", co_bankrupt_hilo * 100.0),
+        format!("{:.2}%", co_bankrupt_ko * 100.0),
+        format!("{:.2}%", co_bankrupt_uston * 100.0),
+    ]);
+    table.printstd();
 }

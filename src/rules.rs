@@ -5,7 +5,7 @@
 //pub const PLAYERS: usize = 4;
 
 // RULES
-pub const DECKS: usize = 4;
+pub const DECKS: usize = 6;
 pub const SHUFFLE_AT: usize = 1;
 
 pub const MINIMUM_BET: usize = 2;
@@ -13,6 +13,7 @@ pub const MINIMUM_BET: usize = 2;
 
 pub const SPLIT_BY_VALUE: bool = false;
 pub const SPLIT_TO_X_HANDS: usize = 4;
+//pub const RESPLIT_ACES: bool = true;  TODO: implement this
 pub const DOUBLE: bool = true;
 pub const DOUBLE_AFTER_SPLIT: bool = true;
 pub const SURRENDER: bool = false;
