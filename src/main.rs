@@ -9,9 +9,10 @@ mod rules;
 mod shoe;
 mod strategy;
 
-use indicatif::{ProgressBar, ProgressStyle};
 #[macro_use]
 extern crate prettytable;
+
+use indicatif::{ProgressBar, ProgressStyle};
 use prettytable::Table;
 
 use game::Game;
@@ -20,7 +21,7 @@ use rules::MINIMUM_BET;
 use strategy::*;
 
 const TESTS: usize = 100;
-const ROUNDS: usize = 1000;
+const ROUNDS: usize = 10000;
 
 fn main() {
     let mut roi_no = 0.0;
@@ -121,36 +122,31 @@ fn main() {
 
     pb.finish_with_message("Done!");
 
+    println!("");
+
     let mut table = Table::new();
     table.set_format(*prettytable::format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
-    //table.set_format(*prettytable::format::consts::FORMAT_BOX_CHARS);
-    table.set_titles(row![
-        "Metric",
-        "No Count",
-        "HiLo Count",
-        "KO Count",
-        "Uston SS Count"
-    ]);
+    table.set_titles(row!["Metric", "No Count", "HiLo Count", "KO Count", "Uston SS Count"]);
     table.add_row(row![
         "Avg. final bankroll",
-        format!("{:.2}", avg_final_bankroll_no),
-        format!("{:.2}", avg_final_bankroll_hilo),
-        format!("{:.2}", avg_final_bankroll_ko),
-        format!("{:.2}", avg_final_bankroll_uston),
+        format!("${:.2}", avg_final_bankroll_no),
+        format!("${:.2}", avg_final_bankroll_hilo),
+        format!("${:.2}", avg_final_bankroll_ko),
+        format!("${:.2}", avg_final_bankroll_uston),
     ]);
     table.add_row(row![
         "ROI",
-        format!("{:.2}%", roi_no as f64 * 100.0 / (ROUNDS * TESTS) as f64),
-        format!("{:.2}%", roi_hilo as f64 * 100.0 / (ROUNDS * TESTS) as f64),
-        format!("{:.2}%", roi_ko as f64 * 100.0 / (ROUNDS * TESTS) as f64),
-        format!("{:.2}%", roi_uston as f64 * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_no * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_hilo * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_ko * 100.0 / (ROUNDS * TESTS) as f64),
+        format!("{:.2}%", roi_uston * 100.0 / (ROUNDS * TESTS) as f64),
     ]);
     table.add_row(row![
         "Expected earnings",
-        format!("{:.3}% min bet",exp_earning_no as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
-        format!("{:.3}% min bet",exp_earning_hilo as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
-        format!("{:.3}% min bet",exp_earning_ko as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
-        format!("{:.3}% min bet",exp_earning_uston as f64 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.2}% min bet", exp_earning_no as f64 * 100.0 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.2}% min bet", exp_earning_hilo as f64 * 100.0 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.2}% min bet", exp_earning_ko as f64 * 100.0 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
+        format!("{:.2}% min bet", exp_earning_uston as f64 * 100.0 / (ROUNDS * TESTS * MINIMUM_BET) as f64),
     ]);
     table.add_row(row![
         "Risk of ruin",

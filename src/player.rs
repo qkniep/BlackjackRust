@@ -26,15 +26,15 @@ impl Player {
         }
     }
 
-    pub fn deal(&mut self, hand: Hand, remaining_decks: i32) {
-        self.hands.clear();
+    pub fn bet(&mut self, remaining_decks: i32) {
         self.bets.clear();
-
-        // TODO: possible unwanted advantage:
-        // player bets after seeing other player's hands
         let true_count = self.count / remaining_decks;
         let bet_size = max(1, (true_count - 1) * 5);
         self.bets.push(MINIMUM_BET * bet_size as usize);
+    }
+
+    pub fn deal(&mut self, hand: Hand) {
+        self.hands.clear();
         self.hands.push(hand);
     }
 

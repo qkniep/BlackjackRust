@@ -23,15 +23,15 @@ const PAIR_SPLITTING: [[bool; 10]; 10] = [
 
 const SOFT_TOTALS: [[Action; 10]; 9] = [
 //   2      3      4      5      6      7      8      9      10     A     <- DEALER
-    [Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit,   Hit  ],  // A
-    [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 2
-    [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 3
-    [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 4
-    [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 5
-    [Hit,   DH,    DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 6
-    [Stand, DS,    DS,    DS,    DS,    Stand, Stand, Stand, Stand, Stand],  // 7
-    [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 8
-    [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 9
+    [Hit,   Hit,   Hit,   Hit,   DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 12
+    [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 13
+    [Hit,   Hit,   Hit,   DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 14
+    [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 15
+    [Hit,   Hit,   DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 16
+    [Hit,   DH,    DH,    DH,    DH,    Hit,   Hit,   Hit,   Hit,   Hit  ],  // 17
+    [Stand, DS,    DS,    DS,    DS,    Stand, Stand, Hit,   Hit,   Hit  ],  // 18
+    [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 19
+    [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 20
 ];
 
 const HARD_TOTALS: [[Action; 10]; 17] = [
@@ -49,7 +49,7 @@ const HARD_TOTALS: [[Action; 10]; 17] = [
     [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   Hit,   Hit  ],  // 13
     [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   Hit,   Hit  ],  // 14
     [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   Hit,   RH,    Hit  ],  // 15
-    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   RH,    RH,    RH   ],  // 16
+    [Stand, Stand, Stand, Stand, Stand, Hit,   Hit,   RH,    RH,    Hit  ],  // 16
 
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 17
     [Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand, Stand],  // 18
@@ -72,7 +72,7 @@ pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
     if hand.pair && PAIR_SPLITTING[hand.last_card.index()][dealer_index] {
         action = Split;
     } else if hand.soft {
-        action = SOFT_TOTALS[hand.value-11-1][dealer_index];
+        action = SOFT_TOTALS[hand.value-12][dealer_index];
     } else {
         action = HARD_TOTALS[hand.value-4][dealer_index];
     }

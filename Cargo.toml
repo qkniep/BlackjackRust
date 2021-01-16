@@ -3,6 +3,7 @@ name = "blackjack_simulator"
 version = "0.1.0"
 authors = ["Quentin Kniep <hello@quentinkniep.com>"]
 edition = "2018"
+default-run = "blackjack_simulator"
 
 [dependencies]
 indicatif = "0.15"

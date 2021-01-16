@@ -22,11 +22,7 @@ impl Hand {
             num_cards: 2,
             natural: true,
             soft: card1 == Card::Ace || card2 == Card::Ace,
-            pair: if SPLIT_BY_VALUE {
-                card1.value() == card2.value()
-            } else {
-                card1 == card2
-            },
+            pair: card1 == card2 || (SPLIT_BY_VALUE && card1.value() == card2.value()),
             blackjack: card1.value() + card2.value() == 21,
             surrendered: false,
             last_card: card2,
@@ -41,6 +37,7 @@ impl Hand {
         self.value += card.value();
         self.num_cards += 1;
         self.natural = false;
+        self.pair = false;
         self.last_card = card;
 
         if self.soft {

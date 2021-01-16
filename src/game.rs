@@ -58,6 +58,7 @@ impl Game {
     }
 
     fn new_round(&mut self) {
+        // Reshuffle shoe if necessary
         if self.shoe.num_cards() <= SHUFFLE_AT * 52 {
             self.shoe.shuffle();
             for player in &mut self.players {
@@ -65,12 +66,18 @@ impl Game {
             }
         }
 
+        // Players' make their bets
+        for player in self.players.iter_mut() {
+            let remaining_decks = (self.shoe.num_cards() + 26) / DECKS;
+            player.bet(remaining_decks as i32);
+        }
+
+        // Players' get dealt their initial cards
         for player in 0..self.players.len() {
             let card1 = self.draw_reveal();
             let card2 = self.draw_reveal();
             let hand = Hand::new(card1, card2);
-            let remaining_decks = (self.shoe.num_cards() + 51) / DECKS;
-            self.players[player].deal(hand, remaining_decks as i32);
+            self.players[player].deal(hand);
         }
     }
 

@@ -11,13 +11,13 @@ pub const SHUFFLE_AT: usize = 1;
 pub const MINIMUM_BET: usize = 2;
 //pub const MAXIMUM_BET: usize = 1000;  TODO: implement this
 
-pub const SPLIT_BY_VALUE: bool = false;
+pub const SPLIT_BY_VALUE: bool = true;
 pub const SPLIT_TO_X_HANDS: usize = 4;
 //pub const RESPLIT_ACES: bool = true;  TODO: implement this
 pub const DOUBLE: bool = true;
 pub const DOUBLE_AFTER_SPLIT: bool = true;
-pub const SURRENDER: bool = false;
-pub const DEALER_HITS_S17: bool = true;
+pub const SURRENDER: bool = true;
+pub const DEALER_HITS_S17: bool = false;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
