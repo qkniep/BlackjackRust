@@ -77,14 +77,14 @@ pub fn optimal_action(hand: &Hand, dealer_card: Card) -> Action {
         action = HARD_TOTALS[hand.value-4][dealer_index];
     }
 
-    if !DOUBLE || (!hand.natural && !DAS) {
+    if !DOUBLE || hand.num_cards > 2 || (!hand.natural && !DAS) {
         if action == Action::DH {
             return Hit
         } else if action == Action::DS {
             return Stand;
         }
     }
-    if !SURRENDER {
+    if !SURRENDER || !hand.natural {
         if action == Action::RH {
             return Hit;
         } else if action == Action::RS {

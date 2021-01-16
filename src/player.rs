@@ -1,6 +1,8 @@
 // Copyright (C) 2020 Quentin Kniep <hello@quentinkniep.com>
 // Distributed under terms of the MIT license.
 
+use std::cmp::max;
+
 use crate::hand::Hand;
 use crate::rules::*;
 
@@ -16,7 +18,7 @@ pub struct Player {
 impl Player {
     pub fn new(strategy: &'static [i32; 10]) -> Self {
         Self {
-            bankroll: 100,
+            bankroll: 10000,
             hands: Vec::new(),
             bets: Vec::new(),
             counting_strategy: strategy,
@@ -30,7 +32,8 @@ impl Player {
 
         // TODO: possible unwanted advantage:
         // player bets after seeing other player's hands
-        let bet_size = std::cmp::max(0, self.count / remaining_decks + 1);
+        let true_count = self.count / remaining_decks;
+        let bet_size = max(1, (true_count - 1) * 5);
         self.bets.push(MINIMUM_BET * bet_size as usize);
         self.hands.push(hand);
     }

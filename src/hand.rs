@@ -6,6 +6,7 @@ use crate::rules::*;
 #[derive(Debug)]
 pub struct Hand {
     pub value: usize,
+    pub num_cards: usize,
     pub natural: bool,
     pub soft: bool,
     pub pair: bool,
@@ -18,6 +19,7 @@ impl Hand {
     pub fn new(card1: Card, card2: Card) -> Self {
         let mut hand = Self {
             value: card1.value() + card2.value(),
+            num_cards: 2,
             natural: true,
             soft: card1 == Card::Ace || card2 == Card::Ace,
             pair: if SPLIT_BY_VALUE {
@@ -37,6 +39,7 @@ impl Hand {
 
     pub fn add_card(&mut self, card: Card) {
         self.value += card.value();
+        self.num_cards += 1;
         self.natural = false;
         self.last_card = card;
 

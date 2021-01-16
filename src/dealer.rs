@@ -61,18 +61,27 @@ mod tests {
 
     #[test]
     fn test_scoring() {
+        // dealer blackjack
         let dealer = Dealer::new(Card::Ace, Card::King);
         let hands = vec![Hand::new(Card::Number(8), Card::Queen)];
         assert_eq!(dealer.score_hands(&hands, &vec![2]), -2);
 
+        // both blackjack
         let hands = vec![Hand::new(Card::Ace, Card::Queen)];
         assert_eq!(dealer.score_hands(&hands, &vec![7]), 0);
 
+        // player blackjack
+        let dealer = Dealer::new(Card::Number(10), Card::Number(7));
+        let hands = vec![Hand::new(Card::Ace, Card::Number(10))];
+        assert_eq!(dealer.score_hands(&hands, &vec![8]), 12);
+
+        // player bust
         let dealer = Dealer::new(Card::Number(3), Card::Number(3));
         let mut hands = vec![Hand::new(Card::Number(7), Card::Queen)];
         hands[0].add_card(Card::Number(9));
         assert_eq!(dealer.score_hands(&hands, &vec![3]), -3);
 
+        // player stronger cards
         let dealer = Dealer::new(Card::Jack, Card::Number(8));
         let hands = vec![Hand::new(Card::Number(9), Card::Queen)];
         assert_eq!(dealer.score_hands(&hands, &vec![4]), 4);

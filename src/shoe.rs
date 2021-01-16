@@ -32,7 +32,6 @@ impl Shoe {
             self.cards.push(Card::Ace);
         }
         self.cards.as_mut_slice().shuffle(&mut thread_rng());
-        assert_eq!(self.cards.len(), self.cards.capacity());
     }
 
     pub fn num_cards(&self) -> usize {

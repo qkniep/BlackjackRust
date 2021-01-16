@@ -53,6 +53,10 @@ impl Game {
         self.players.iter().map(|p| p.bankroll).collect()
     }
 
+    pub fn bet_sizes(&self) -> Vec<usize> {
+        self.players.iter().map(|p| p.bets.iter().sum()).collect()
+    }
+
     fn new_round(&mut self) {
         if self.shoe.num_cards() <= SHUFFLE_AT * 52 {
             self.shoe.shuffle();
@@ -83,15 +87,13 @@ impl Game {
                     Action::Stand => {
                         break;
                     }
-                    Action::DH | Action::DS => {
-                        // Double
+                    Action::DH | Action::DS => { // Double
                         self.players[player].bets[hand] *= 2;
                         let card = self.draw_reveal();
                         self.players[player].hands[hand].add_card(card);
                         break;
                     }
-                    Action::RH | Action::RS => {
-                        // Surrender
+                    Action::RH | Action::RS => { // Surrender
                         self.players[player].hands[hand].surrendered = true;
                         break;
                     }
