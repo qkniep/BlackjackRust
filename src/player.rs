@@ -16,7 +16,7 @@ pub struct Player {
 impl Player {
     pub fn new(strategy: &'static [i32; 10]) -> Self {
         Self {
-            bankroll: 1000,
+            bankroll: 100,
             hands: Vec::new(),
             bets: Vec::new(),
             counting_strategy: strategy,

@@ -13,7 +13,7 @@ use game::Game;
 use player::Player;
 use strategy::*;
 
-const TESTS: u32 = 1000;
+const TESTS: u32 = 100;
 const ROUNDS: u32 = 1000;
 
 fn main() {
@@ -80,40 +80,40 @@ fn main() {
     }
 
     println!(
-        "Average ROI after {} rounds (no count): {}",
+        "Average ROI after {} rounds (no count): {:.2}%",
         ROUNDS,
-        roi_no as f64 / (ROUNDS * TESTS) as f64
+        roi_no as f64 * 100.0 / (ROUNDS * TESTS) as f64
     );
     println!(
-        "Average ROI after {} rounds (HL count): {}",
+        "Average ROI after {} rounds (HL count): {:.2}%",
         ROUNDS,
-        roi_hilo as f64 / (ROUNDS * TESTS) as f64
+        roi_hilo as f64 * 100.0 / (ROUNDS * TESTS) as f64
     );
     println!(
-        "Average ROI after {} rounds (KO count): {}",
+        "Average ROI after {} rounds (KO count): {:.2}%",
         ROUNDS,
-        roi_ko as f64 / (ROUNDS * TESTS) as f64
+        roi_ko as f64 * 100.0 / (ROUNDS * TESTS) as f64
     );
     println!(
-        "Average ROI after {} rounds (SS count): {}",
+        "Average ROI after {} rounds (SS count): {:.2}%",
         ROUNDS,
-        roi_uston as f64 / (ROUNDS * TESTS) as f64
+        roi_uston as f64 * 100.0 / (ROUNDS * TESTS) as f64
     );
 
     println!(
-        "Chance of bankrupt after {} rounds (no count): {}",
-        ROUNDS, co_bankrupt_no
+        "Chance of bankrupt after {} rounds (no count): {:.2}%",
+        ROUNDS, co_bankrupt_no * 100.0
     );
     println!(
-        "Chance of bankrupt after {} rounds (HL count): {}",
-        ROUNDS, co_bankrupt_hilo
+        "Chance of bankrupt after {} rounds (HL count): {:.2}%",
+        ROUNDS, co_bankrupt_hilo * 100.0
     );
     println!(
-        "Chance of bankrupt after {} rounds (KO count): {}",
-        ROUNDS, co_bankrupt_ko
+        "Chance of bankrupt after {} rounds (KO count): {:.2}%",
+        ROUNDS, co_bankrupt_ko * 100.0
     );
     println!(
-        "Chance of bankrupt after {} rounds (SS count): {}",
-        ROUNDS, co_bankrupt_uston
+        "Chance of bankrupt after {} rounds (SS count): {:.2}%",
+        ROUNDS, co_bankrupt_uston * 100.0
     );
 }

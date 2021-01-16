@@ -5,8 +5,8 @@
 //pub const PLAYERS: usize = 4;
 
 // RULES
-pub const DECKS: usize = 8;
-pub const SHUFFLE_AT: usize = 2;
+pub const DECKS: usize = 2;
+pub const SHUFFLE_AT: usize = 1;
 
 pub const MINIMUM_BET: usize = 2;
 //pub const MAXIMUM_BET: usize = 1000;  TODO: implement this
