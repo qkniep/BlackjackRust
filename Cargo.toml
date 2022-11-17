@@ -7,5 +7,5 @@ default-run = "blackjack_simulator"
 
 [dependencies]
 indicatif = "0.17"
-prettytable-rs = "0.8"
+prettytable-rs = "0.9"
 rand = { version="0.8", features=["small_rng"] }
